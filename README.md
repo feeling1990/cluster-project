@@ -6,11 +6,11 @@ This is my Phase I reasearch study. The study focuses on doing feature selection
 install.packages("EMCluster","mvtnorm","mvnfast","parallel")
 
 ## How to run the code
-The core and basic functions are in file ESM for GMM.R. You need to run all these functions before doing other experiments.
+The core and basic functions are in file 'ESM for GMM.R'. You need to run all these functions before doing experiments.
 The core function is ESM=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshold2). You can call this function for any new dataset. 
 
 ## Example to run
-sim3=simulation1(400) # the function is in [simulation for paper.R]
+sim3=simulation1(400) # the function is in 'simulation for paper.R'
 data = sim3[[1]]
 truelabel = sim3[[2]]
 
@@ -26,7 +26,7 @@ myresults2 returns a list of results:
 --i, number of iterations when finished.
 
 ## Purpose of each file
-1. ESM for GMM.R provides core functions for the ESM algorithm.
-2. simulation for paper provides the code for the simulation data experiment in paper.
-3. experiments_add.R provides additional expeirments on benchmarkdata like Hearts/Crab/Wine.
-4. ESM paper illustration example.R provides code for the illustration example in paper.
+1. 'ESM for GMM.R' provides core functions for the ESM algorithm.
+2. 'simulation for paper.R' provides the code for the simulation data experiment in paper.
+3. 'experiments_add.R' provides additional expeirments on benchmarkdata like Hearts/Crab/Wine.
+4. 'ESM paper illustration example.R' provides code for the illustration example in paper.
