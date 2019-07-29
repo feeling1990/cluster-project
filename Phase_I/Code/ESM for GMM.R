@@ -1,9 +1,14 @@
-##EM feature selection algorithm
+##EM feature selection algorithm 
+
+## pre-install library packages
 install.packages("EMCluster","mvtnorm","mvnfast","parallel")
+
 library(EMCluster)
 library(mvtnorm)
 library(mvnfast)
-#functions needed
+
+
+## functions needed
 myaccuracy=function(confusion){
   if(dim(confusion)[1]==3){
     type1=(confusion[1,1]+confusion[2,2]+confusion[3,3])/sum(confusion) #1-1;2-2;3-3
@@ -38,6 +43,7 @@ Mdiff1=function(x,y){
   }
   return(sum(h)/(dim(x)[1]*dim(x)[2]))
 }
+
 classassign=function(gammaKn){
   apply(gammaKn,1,which.max)
 }
@@ -61,6 +67,7 @@ responsibility <- function(xn, k, K, pi, mu, sigma) {
     a / b;
   } 
 }
+
 
 Estep <- function(xx, pi, mu, sigma) {
   xx=as.matrix(xx)
@@ -117,6 +124,7 @@ loglike <- function(xx, pi, mu, sigma) {
 }
 
 pi=v[[1]];mu=v[[2]];sigma=v[[3]]
+
 Estep1=function(xx,pi, mu,sigma){
   N=nrow(xx);p=ncol(xx);K=length(pi)
   d=matrix(,N,K);dx=array(,dim=c(N,K,p));RI=rep(0,p)
@@ -124,7 +132,11 @@ Estep1=function(xx,pi, mu,sigma){
   for(k in 1:K){
     d[,k]=apply(xx,1,function(xn){dmvn(xn,mu[,k],sigma[,,k])})
     for(j in 1:p){
-      dx[,k,j]=apply(xx[,-j],1,function(xn){dmvn(xn,mu[-j,k],sigma[-j,-j,k])})
+      if (p>2){ dx[,k,j]=apply(xx[,-j],1,function(xn){dmvn(xn,mu[-j,k],sigma[-j,-j,k])})}
+      else{
+        dx[,k,j] = sapply(xx[,-j],function(xn){dnorm(xn,mu[-j,k],sigma[-j,-j,k])})
+      }
+      
     }
   }
   for(k in 1:K){
@@ -137,14 +149,58 @@ Estep1=function(xx,pi, mu,sigma){
     RI[j]=Mdiff1(gammaKn,GammaKn[,,j])
   }
   #for(j in 1:p){
-    #part2==1/(N*K)*sum(gammaKn%*%(log(dx[,,j]%*%pi)-log(d%*%pi))) ##for one j
-    #part1=1/(N*K)*sum(t(gammaKn)*(log(d)-log(dx[,,j])))}
+  #part2==1/(N*K)*sum(gammaKn%*%(log(dx[,,j]%*%pi)-log(d%*%pi))) ##for one j
+  #part1=1/(N*K)*sum(t(gammaKn)*(log(d)-log(dx[,,j])))}
   return(list(gammaKn,RI))
 }
 
 
+
 #obj=init.EM(xx,nclass=clusternum)
 ####ESM for GMM#####
+ESM_v1=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshold2){
+  p=ncol(xx);N=nrow(xx);delete=NULL;keep=1:p;xx_new=xx; delta_matrix=matrix(0,maxiter,p)
+  cl=makeCluster(no_cores);
+  cur.loglik=0
+  # Initialization
+  gammaKn = e.step(xx,obj)
+  df <- data.frame(matrix(unlist(gammaKn), ncol=clusternum, byrow=F),stringsAsFactors=FALSE)
+  v <- Mstep(xx, t(df));
+  cur.loglik <- loglike(xx,v[[1]],v[[2]],v[[3]])
+  loglikvector <- cur.loglik
+  delta_cur=numeric(p)
+  for (i in 2:maxiter) {
+    # Repeat E and M steps till convergence
+    temper=Estep1(xx_new,v[[1]],v[[2]],v[[3]])
+    gammaKn=temper[[1]];delta_new=temper[[2]]
+    delta_matrix[i,keep]=temper[[2]]
+    index=which.min(delta_new)
+    if((abs(mean(delta_matrix[i,]-delta_matrix[i-1,]))<threshold1)&(delta_new[index]<threshold2)&(i>5))
+    {delete=c(delete,keep[index])
+    xx_new=xx_new[,-index]
+    keep=keep[-index]}
+    v <- Mstep(xx_new, gammaKn);
+    a <-loglike(xx_new,v[[1]],v[[2]],v[[3]])
+    loglikvector <- c(loglikvector, a)
+    loglikdiff <- abs((cur.loglik - a))
+    #loglik.vector
+    if((loglikdiff < 1e-15 & length(keep)<(featurenum+1))|| length(keep)<=featurenum) {
+      for(h in 1:10){
+        v <- Mstep(xx_new, gammaKn);
+        gammaKn = Estep(xx_new,v[[1]],v[[2]],v[[3]]) 
+      } 
+      break } 
+    else {
+      cur.loglik <- a
+    } 
+  }
+  mylabel=classassign(t(gammaKn))
+  confusion=table(truelabel,mylabel)
+  acc=myaccuracy(confusion)
+  results=list(delta_matrix,keep,acc,confusion,delete,i)
+  return(results)
+}
+
 ESM=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshold2){
   p=ncol(xx);N=nrow(xx);delete=NULL;keep=1:p;xx_new=xx; delta_matrix=matrix(0,maxiter,p)
   cl=makeCluster(no_cores);
@@ -171,7 +227,8 @@ ESM=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshol
     loglikvector <- c(loglikvector, a)
     loglikdiff <- abs((cur.loglik - a))
     #loglik.vector
-    if((loglik.diff < 1e-15 & length(keep)<(featurenum+1))|| length(keep)<=featurenum) {
+    if((loglikdiff < 1e-15 & length(keep)<(featurenum+1)) || ncol(xx_new)<featurenum) {
+      print('yes')
       for(h in 1:10){
         v <- Mstep(xx_new, gammaKn);
         gammaKn = Estep(xx_new,v[[1]],v[[2]],v[[3]]) 
@@ -181,6 +238,7 @@ ESM=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshol
       cur.loglik <- a
     } 
   }
+  i = i + 1
   mylabel=classassign(t(gammaKn))
   confusion=table(truelabel,mylabel)
   acc=myaccuracy(confusion)
@@ -188,13 +246,42 @@ ESM=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshol
   return(results)
 }
 
-
-
+##Example 
 ##test on simulation data
-sim3=simulation1(n=400)
+
+## prepare simulation data
+simulation1=function(n){
+  S1 <- matrix(c(1,0,0,1),nrow=2,byrow=TRUE)
+  mu1 <- c(-1,1)
+  S2 <- matrix(c(1,0,0,1),nrow=2,byrow=TRUE)
+  mu2 <- c(2,-1)
+  n1 <- n/2 ;n2 <- n/2
+  label=c(rep(1,n1),rep(2,n2))
+  val1 <- mvrnorm(n1,mu=mu1,Sigma=S1)
+  val2 <- mvrnorm(n2,mu=mu2,Sigma=S2)
+  allval <- rbind(val1,val2)      ## combine
+  x3=rnorm(n, mean=1.5, sd=1)
+  x4=rnorm(n, mean=3, sd=0.5)
+  x5=rnorm(n, mean=1.8, sd=0.9)
+  x6=rnorm(n, mean=2.7, sd=1.5)
+  x7=rnorm(n, mean=0.3, sd=0.5)
+  x8=rnorm(n, mean=0.8, sd=0.9)
+  x9=rnorm(n, mean=-2, sd=0.5)
+  x10=rnorm(n, mean=-3, sd=0.9)
+  sim=data.frame(label,allval,x3,x4,x5,x6,x7,x8,x9,x10)
+  order=sample(n,n)
+  newlabel=sim[order,1]
+  sim1=sim[order,-1]
+  results=list(sim1,newlabel)
+  return(results)
+}
+
+
+
+sim3=simulation1(400)
 start_time <- Sys.time()
 obj=obj=init.EM(sim3[[1]],nclass=2)
-myresults2=ESM(sim3[[1]],obj,clusternum=2,maxiter=100,truelabel=sim3[[2]],featurenum=2,threshold1=0.001,threshold2=0.05)
+myresults2=ESM(sim3[[1]],obj,clusternum=2,maxiter=100,truelabel=sim3[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
 end_time <- Sys.time()
 end_time - start_time
 

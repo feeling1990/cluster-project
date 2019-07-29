@@ -1,4 +1,4 @@
-###Benchmark data 'Crab'
+
 benchmark_compare=function(data_X,Class,num_class){
   #initial model with full features 
   mod1=Mclust(X,G=1:5)
@@ -49,7 +49,7 @@ benchmark_compare=function(data_X,Class,num_class){
   return (benchmark_results)
 }
 
-
+###Benchmark data 'Crab'
 data("crabs",package="MASS")
 X=crabs[,4:8]
 Class=with(crabs,paste(sp,sex,sep="|"))
@@ -75,7 +75,7 @@ figure7=ggplot(data=result1,aes(x=algorithm,y=Time))+geom_bar(stat="identity",wi
   geom_text(aes(label=paste0(Time)), vjust=-0.3, size=3.5)+
   ggtitle("Running Time on Crab Data")
 
-tiff('/Users/yinlin/Desktop/ESM phase I/ESM paper/figures/crab.tiff', units="in", width=6, height=8, res=300)
+tiff('/Users/yinlin/Github/cluster-project/Phase_I/Figures/crab.tiff', units="in", width=6, height=8, res=300)
 multiplot(figure6, figure7, cols=1)
 dev.off()
 
@@ -109,6 +109,6 @@ figure9=ggplot(data=result2,aes(x=algorithm,y=Time))+geom_bar(stat="identity",wi
   ggtitle("Running Time on Wine Data")
 
 
-tiff('/Users/yinlin/Desktop/ESM phase I/ESM paper/figures/wine.tiff', units="in", width=6, height=8, res=300)
+tiff('/Users/yinlin/Github/cluster-project/Phase_I/Figures/wine.tiff', units="in", width=6, height=8, res=300)
 multiplot(figure8, figure9, cols=1)
 dev.off()
