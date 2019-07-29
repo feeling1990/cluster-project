@@ -17,6 +17,14 @@ truelabel = sim3[[2]]
 obj=obj=init.EM(data,nclass=2)
 myresults2=ESM(data,obj,clusternum=2,maxiter=100,truelabel=truelabel,featurenum=3,threshold1=0.001,threshold2=0.05)
 
+myresults2 returns a list of results:
+--delta_matrix, the difference between keeping and removing each feature at each iteration.
+--keep, final selected features
+--acc, accuracy of the final clustering results
+--confusion, confusion matrix of clustering label and true label
+--delete, removed set of features
+--i, number of iterations when finished.
+
 ## Purpose of each file
 1. ESM for GMM.R provides core functions for the ESM algorithm.
 2. simulation for paper provides the code for the simulation data experiment in paper.
