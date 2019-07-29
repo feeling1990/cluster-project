@@ -158,49 +158,6 @@ Estep1=function(xx,pi, mu,sigma){
 
 #obj=init.EM(xx,nclass=clusternum)
 ####ESM for GMM#####
-ESM_v1=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshold2){
-  p=ncol(xx);N=nrow(xx);delete=NULL;keep=1:p;xx_new=xx; delta_matrix=matrix(0,maxiter,p)
-  cl=makeCluster(no_cores);
-  cur.loglik=0
-  # Initialization
-  gammaKn = e.step(xx,obj)
-  df <- data.frame(matrix(unlist(gammaKn), ncol=clusternum, byrow=F),stringsAsFactors=FALSE)
-  v <- Mstep(xx, t(df));
-  cur.loglik <- loglike(xx,v[[1]],v[[2]],v[[3]])
-  loglikvector <- cur.loglik
-  delta_cur=numeric(p)
-  for (i in 2:maxiter) {
-    # Repeat E and M steps till convergence
-    temper=Estep1(xx_new,v[[1]],v[[2]],v[[3]])
-    gammaKn=temper[[1]];delta_new=temper[[2]]
-    delta_matrix[i,keep]=temper[[2]]
-    index=which.min(delta_new)
-    if((abs(mean(delta_matrix[i,]-delta_matrix[i-1,]))<threshold1)&(delta_new[index]<threshold2)&(i>5))
-    {delete=c(delete,keep[index])
-    xx_new=xx_new[,-index]
-    keep=keep[-index]}
-    v <- Mstep(xx_new, gammaKn);
-    a <-loglike(xx_new,v[[1]],v[[2]],v[[3]])
-    loglikvector <- c(loglikvector, a)
-    loglikdiff <- abs((cur.loglik - a))
-    #loglik.vector
-    if((loglikdiff < 1e-15 & length(keep)<(featurenum+1))|| length(keep)<=featurenum) {
-      for(h in 1:10){
-        v <- Mstep(xx_new, gammaKn);
-        gammaKn = Estep(xx_new,v[[1]],v[[2]],v[[3]]) 
-      } 
-      break } 
-    else {
-      cur.loglik <- a
-    } 
-  }
-  mylabel=classassign(t(gammaKn))
-  confusion=table(truelabel,mylabel)
-  acc=myaccuracy(confusion)
-  results=list(delta_matrix,keep,acc,confusion,delete,i)
-  return(results)
-}
-
 ESM=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshold2){
   p=ncol(xx);N=nrow(xx);delete=NULL;keep=1:p;xx_new=xx; delta_matrix=matrix(0,maxiter,p)
   cl=makeCluster(no_cores);
