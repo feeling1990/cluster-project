@@ -1,30 +1,20 @@
 ##EM feature selection algorithm 
 
 ## pre-install library packages
-install.packages("EMCluster","mvtnorm","mvnfast","parallel")
-
+#install.packages("EMCluster","mvnfast","parallel","ggplot2")
+#install.packages("ggplot2","mclust","VarSelLCM","vscc","SelvarMix","clustvarsel")
 library(EMCluster)
-library(mvtnorm)
 library(mvnfast)
-
+library(ggplot2)
+library(mclust)
+library(VarSelLCM)
+library(vscc)
+library(SelvarMix)
+library(clustvarsel)
 
 ## functions needed
-myaccuracy=function(confusion){
-  if(dim(confusion)[1]==3){
-    type1=(confusion[1,1]+confusion[2,2]+confusion[3,3])/sum(confusion) #1-1;2-2;3-3
-    type2=(confusion[1,1]+confusion[2,3]+confusion[3,2])/sum(confusion) #1-1;2-3;3-2
-    type3=(confusion[1,2]+confusion[2,1]+confusion[3,3])/sum(confusion) #1-2;2-1;3-3
-    type4=(confusion[1,2]+confusion[2,3]+confusion[3,1])/sum(confusion) #1-2;2-3;3-1
-    type5=(confusion[1,3]+confusion[2,2]+confusion[3,1])/sum(confusion) #1-3;2-2;3-1
-    type6=(confusion[1,3]+confusion[2,1]+confusion[3,2])/sum(confusion) #1-3;2-1;3-2
-    acc=max(type1,type2,type3,type4,type5,type6) 
-  }
-  if(dim(confusion)[1]==2){
-    type1=(confusion[1,1]+confusion[2,2])/sum(confusion)
-    type2=(confusion[1,2]+confusion[2,1])/sum(confusion)
-    acc=max(type1,type2)
-  }
-  return(acc)
+myaccuracy = function(truelabel,mylabel){
+  return(1-classError(mylabel,truelabel)$errorRate)
 }
 
 f=function(p,q){
@@ -62,7 +52,7 @@ responsibility <- function(xn, k, K, pi, mu, sigma) {
     a/b;
   }
   else{
-    a <- pi[k] * dmvnorm(xn, mu[,k], sigma[,,k]);
+    a <- pi[k] * dmvn(xn, mu[,k], sigma[,,k]);
     b <- sum(sapply(1:K, function(j) { pi[j] * dmvn(xn, mu[,j], sigma[,,j]) }));
     a / b;
   } 
@@ -148,22 +138,54 @@ Estep1=function(xx,pi, mu,sigma){
   for(j in 1:p){
     RI[j]=Mdiff1(gammaKn,GammaKn[,,j])
   }
-  #for(j in 1:p){
-  #part2==1/(N*K)*sum(gammaKn%*%(log(dx[,,j]%*%pi)-log(d%*%pi))) ##for one j
-  #part1=1/(N*K)*sum(t(gammaKn)*(log(d)-log(dx[,,j])))}
   return(list(gammaKn,RI))
 }
 
+##plot function##
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  require(grid)
+  
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  
+  numPlots = length(plots)
+  
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+  
+  if (numPlots==1) {
+    print(plots[[1]])
+    
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
 
-
-#obj=init.EM(xx,nclass=clusternum)
 ####ESM for GMM#####
 ESM=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshold2){
   p=ncol(xx);N=nrow(xx);delete=NULL;keep=1:p;xx_new=xx; delta_matrix=matrix(0,maxiter,p)
   cl=makeCluster(no_cores);
   cur.loglik=0
-  # Initialization
-  gammaKn = e.step(xx,obj)
+  # Initialization way1
+  #gammaKn = e.step(xx,obj)
+  gammaKn = obj$z
   df <- data.frame(matrix(unlist(gammaKn), ncol=clusternum, byrow=F),stringsAsFactors=FALSE)
   v <- Mstep(xx, t(df));
   cur.loglik <- loglike(xx,v[[1]],v[[2]],v[[3]])
@@ -198,8 +220,8 @@ ESM=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshol
   i = i + 1
   mylabel=classassign(t(gammaKn))
   confusion=table(truelabel,mylabel)
-  acc=myaccuracy(confusion)
-  results=list(delta_matrix,keep,acc,confusion,delete,i)
+  acc=myaccuracy(truelabel,mylabel)
+  results=list(mylabel,delta_matrix,keep,acc,confusion,delete)
   return(results)
 }
 
@@ -237,7 +259,8 @@ simulation1=function(n){
 
 sim3=simulation1(400)
 start_time <- Sys.time()
-obj=obj=init.EM(sim3[[1]],nclass=2)
+obj = Mclust(sim3[[1]],G=2) # a more robust way of initialization
+##another way of initialization is #obj=init.EM(sim3[[1]],nclass=2) and change ESM function initialization way1
 myresults2=ESM(sim3[[1]],obj,clusternum=2,maxiter=100,truelabel=sim3[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
 end_time <- Sys.time()
 end_time - start_time
