@@ -8,10 +8,9 @@ library(SelvarMix)
 library(clustvarsel)
 
 
-
 benchmark_compare=function(X,Class,num_class,max_feature_num){
   #initial model with full features 
-  mod1=Mclust(X,G=num_class)
+  mod1=Mclust(X,G=2:num_class)
   ARI_1=ARI(mod1$classification,Class)
   Error_1=classError(Class,mod1$classification)$errorRate
   print("Finished model1")
@@ -26,7 +25,7 @@ benchmark_compare=function(X,Class,num_class,max_feature_num){
   print("Finished model2")
   # Model 3
   start_time <- Sys.time()
-  mod3=VarSelCluster(X,gvals=2:num_class,nbcores=2,initModel=1000,crit.varsel="BIC")
+  mod3=VarSelCluster(X,gvals=num_class,nbcores=2,initModel=1000,crit.varsel="BIC")
   end_time <- Sys.time()
   time3=end_time - start_time
   ARI_3=ARI(Class, fitted(mod3))
@@ -50,7 +49,7 @@ benchmark_compare=function(X,Class,num_class,max_feature_num){
   print("Finished model5")
   # ESM
   start_time <- Sys.time()
-  mod6 = ESM(X,mod1,clusternum=num_class,maxiter=100,truelabel=Class,max_feature_num=feature_num,threshold1=0.01,threshold2=0.05)
+  mod6 = ESM(X,mod1,clusternum=num_class,maxiter=100,truelabel=Class,max_feature_num=max_feature_num,threshold1=0.01,threshold2=0.05)
   end_time <- Sys.time()
   time6 = end_time - start_time
   ARI_6=ARI(mod6[[1]], Class)
@@ -71,7 +70,7 @@ data("crabs",package="MASS")
 X=crabs[,4:8]
 Class=with(crabs,paste(sp,sex,sep="|"))
 table(Class)
-result1 = benchmark_compare(X,Class,num_class = 4,feature_num = 4)
+result1 = benchmark_compare(X,Class,num_class = 4,max_feature_num = 4)
 result1$ACC = round(1- result1$ErrorRate,4)*100
 figure6=ggplot(data=result1,aes(x=algorithm,y=ACC))+geom_bar(stat="identity",width=0.5)+
   scale_y_continuous()+coord_cartesian(ylim=c(0,100))+
@@ -106,7 +105,7 @@ data("wine",package='SelvarMix')
 summary(wine)
 X=wine[,1:27]
 Class = wine[,28]
-result2 = benchmark_compare(X,Class,num_class = 3)
+result2 = benchmark_compare(X,Class,num_class = 3,max_feature_num = 10)
 result2$ACC = round(1- result2$ErrorRate,4)*100
 result2$ARI = round(result2$ARI,3)
 figure8=ggplot(data=result2,aes(x=algorithm,y=ACC))+geom_bar(stat="identity",width=0.5)+
@@ -131,6 +130,6 @@ figure9=ggplot(data=result2,aes(x=algorithm,y=Time))+geom_bar(stat="identity",wi
 figure9
 
 ## save the plots
-tiff('/Users/yinlin/Github/cluster-project/Phase_I/Figures/wine.tiff', units="in", width=6, height=8, res=300)
-multiplot(figure8, figure9, cols=1)
-dev.off()
+# tiff('/Users/yinlin/Github/cluster-project/Phase_I/Figures/wine.tiff', units="in", width=6, height=8, res=300)
+# multiplot(figure8, figure9, cols=1)
+# dev.off()

@@ -179,7 +179,7 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 }
 
 ####ESM for GMM#####
-ESM=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshold2){
+ESM=function(xx,obj, clusternum,maxiter,truelabel,max_feature_num,threshold1,threshold2){
   p=ncol(xx);N=nrow(xx);delete=NULL;keep=1:p;xx_new=xx; delta_matrix=matrix(0,maxiter,p)
   cl=makeCluster(no_cores);
   cur.loglik=0
@@ -206,7 +206,7 @@ ESM=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshol
     loglikvector <- c(loglikvector, a)
     loglikdiff <- abs((cur.loglik - a))
     #loglik.vector
-    if((loglikdiff < 1e-15 & length(keep)<(featurenum+1)) || ncol(xx_new)<featurenum) {
+    if((loglikdiff < 1e-15 & length(keep)<(max_feature_num+1)) || ncol(xx_new)<max_feature_num) {
       print('yes')
       for(h in 1:10){
         v <- Mstep(xx_new, gammaKn);
@@ -227,7 +227,6 @@ ESM=function(xx,obj, clusternum,maxiter,truelabel,featurenum,threshold1,threshol
 
 ##Example 
 ##test on simulation data
-
 ## prepare simulation data
 simulation1=function(n){
   S1 <- matrix(c(1,0,0,1),nrow=2,byrow=TRUE)
@@ -261,7 +260,7 @@ sim3=simulation1(400)
 start_time <- Sys.time()
 obj = Mclust(sim3[[1]],G=2) # a more robust way of initialization
 ##another way of initialization is #obj=init.EM(sim3[[1]],nclass=2) and change ESM function initialization way1
-myresults2=ESM(sim3[[1]],obj,clusternum=2,maxiter=100,truelabel=sim3[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+myresults2=ESM(sim3[[1]],obj,clusternum=2,maxiter=100,truelabel=sim3[[2]],max_feature_num=3,threshold1=0.001,threshold2=0.05)
 end_time <- Sys.time()
 end_time - start_time
 
