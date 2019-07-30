@@ -18,7 +18,7 @@ obj = Mclust(data,G=2) # a robust way of initialization
 myresults2=ESM(data,obj,clusternum=2,maxiter=100,truelabel=truelabel,max_feature_num=3,threshold1=0.001,threshold2=0.05)
 
 
-myresults2 returns a list of results:
+myresults2 returns a list of results: \
 --predicted label, the predicted label from clustering results \
 --delta_matrix, the difference between keeping and removing each feature at each iteration. \
 --keep, final selected features \
