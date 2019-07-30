@@ -27,80 +27,92 @@ simulation1=function(n){
   return(results)
 }
 
+
 RFS10=matrix(,10,2);
 acc10=NULL
 for (i in 1:10){
 sim10=simulation1(n=1000)
-R1000=EM_Minus(sim10[[1]],clusternum=2,maxiter=100,truelabel=sim10[[2]])
-acc10=c(acc10,R1000[[3]]);RFS10[i,]=R1000[[2]]}
+obj = Mclust(sim10[[1]],G=2) # a more robust way of initialization
+R1000=ESM(sim10[[1]],obj,clusternum=2,maxiter=100,truelabel=sim10[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+acc10=c(acc10,R1000[[4]]);RFS10[i,]=R1000[[3]]}
 mean10=mean(acc10); sd10=sd(acc10)
 
 RFS9 =matrix(,10,2);acc9 =NULL
 for (i in 1:10){
   sim9=simulation1(n=900)
-  R900=EM_Minus(sim9[[1]],clusternum=2,maxiter=100,truelabel=sim9[[2]])
-  acc9=c(acc9,R900[[3]]);RFS9[i,]=R900[[2]]}
+  obj = Mclust(sim9[[1]],G=2)
+  R900=ESM(sim9[[1]],obj,clusternum=2,maxiter=100,truelabel=sim9[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+  acc9=c(acc9,R900[[4]]);RFS9[i,]=R900[[3]]}
 mean9=mean(acc9); sd9=sd(acc9)
 
 RFS8 =matrix(,10,2);acc8 =NULL
 for (i in 1:10){
   sim8=simulation1(n=800)
-  R800=EM_Minus(sim8[[1]],clusternum=2,maxiter=100,truelabel=sim8[[2]])
-  acc8=c(acc8,R800[[3]]);RFS8[i,]=R800[[2]]}
+  obj = Mclust(sim8[[1]],G=2)
+  R800=ESM(sim8[[1]],obj,clusternum=2,maxiter=100,truelabel=sim8[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+  acc8=c(acc8,R800[[4]]);RFS8[i,]=R800[[3]]}
 mean8=mean(acc8); sd8=sd(acc8)
 
 RFS7 =matrix(,10,2);acc7 =NULL
 for (i in 1:10){
   sim7=simulation1(n=700)
-  R700=EM_Minus(sim7[[1]],clusternum=2,maxiter=100,truelabel=sim7[[2]])
-  acc7=c(acc7,R700[[3]]);RFS7[i,]=R700[[2]]}
+  obj = Mclust(sim7[[1]],G=2)
+  R700=ESM(sim7[[1]],obj,clusternum=2,maxiter=100,truelabel=sim7[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+  acc7=c(acc7,R700[[4]]);RFS7[i,]=R700[[3]]}
 mean7=mean(acc7); sd7=sd(acc7)
 
 RFS6 =matrix(,10,2);acc6 =NULL
 for (i in 1:10){
   sim6=simulation1(n=600)
-  R600=EM_Minus(sim6[[1]],clusternum=2,maxiter=100,truelabel=sim6[[2]])
-  acc6=c(acc6,R600[[3]]);RFS6[i,]=R600[[2]]}
+  obj = Mclust(sim6[[1]],G=2)
+  R600=ESM(sim6[[1]],obj,clusternum=2,maxiter=100,truelabel=sim6[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+  acc6=c(acc6,R600[[4]]);RFS6[i,]=R600[[3]]}
 mean6=mean(acc6); sd6=sd(acc6)
 
 RFS5 =matrix(,10,2);acc5 =NULL
 for (i in 1:10){
   sim5=simulation1(n=500)
-  R500=EM_Minus(sim5[[1]],clusternum=2,maxiter=100,truelabel=sim5[[2]])
-  acc5=c(acc5,R500[[3]]);RFS5[i,]=R500[[2]]}
+  obj = Mclust(sim5[[1]],G=2)
+  R500=ESM(sim5[[1]],obj,clusternum=2,maxiter=100,truelabel=sim5[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+  acc5=c(acc5,R500[[4]]);RFS5[i,]=R500[[3]]}
 mean5=mean(acc5); sd5=sd(acc5)
 
 RFS4 =matrix(,10,2);acc4 =NULL
 for (i in 1:10){
   sim4=simulation1(n=400)
-  R400=EM_Minus(sim4[[1]],clusternum=2,maxiter=100,truelabel=sim4[[2]])
-  acc4=c(acc4,R400[[3]]);RFS4[i,]=R400[[2]]}
+  obj = Mclust(sim4[[1]],G=2)
+  R400=ESM(sim4[[1]],obj,clusternum=2,maxiter=100,truelabel=sim4[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+  acc4=c(acc4,R400[[4]]);RFS4[i,]=R400[[3]]}
 mean4=mean(acc4); sd4=sd(acc4)
 
 RFS3 =matrix(,10,2);acc3 =NULL
 for (i in 1:10){
   sim3=simulation1(n=300)
-  R300=EM_Minus(sim3[[1]],clusternum=2,maxiter=100,truelabel=sim3[[2]])
-  acc3=c(acc3,R300[[3]]);RFS3[i,]=R300[[2]]}
+  obj = Mclust(sim3[[1]],G=2)
+  R300=ESM(sim3[[1]],obj,clusternum=2,maxiter=100,truelabel=sim3[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+  acc3=c(acc3,R300[[4]]);RFS3[i,]=R300[[3]]}
 mean3=mean(acc3); sd3=sd(acc3)
 
 RFS2 =matrix(,10,2);acc2 =NULL
 for (i in 1:10){
   sim2=simulation1(n=200)
-  R200=EM_Minus(sim2[[1]],clusternum=2,maxiter=100,truelabel=sim2[[2]])
-  acc2=c(acc2,R200[[3]]);RFS2[i,c(1,2)]=R200[[2]][c(1,2)]}
+  obj = Mclust(sim2[[1]],G=2)
+  R200=ESM(sim2[[1]],obj,clusternum=2,maxiter=100,truelabel=sim2[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+  acc2=c(acc2,R200[[4]]);RFS2[i,c(1,2)]=R200[[3]][c(1,2)]}
 mean2=mean(acc2); sd2=sd(acc2)
 
 RFS1 =matrix(,10,2);acc1 =NULL
 for (i in 1:10){
   sim1=simulation1(n=100)
-  R100=EM_Minus(sim1[[1]],clusternum=2,maxiter=100,truelabel=sim1[[2]])
-  acc1=c(acc1,R100[[3]]);RFS1[i,c(1,2)]=R100[[2]][c(1,2)]}
+  obj = Mclust(sim1[[1]],G=2)
+  R100=ESM(sim1[[1]],obj,clusternum=2,maxiter=100,truelabel=sim1[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+  acc1=c(acc1,R100[[4]]);RFS1[i,c(1,2)]=R100[[3]][c(1,2)]}
 mean1=mean(acc1); sd1=sd(acc1)
 
 ##keep a record in excel
 RFS=cbind(RFS1,RFS2,RFS3,RFS4,RFS5,RFS6,RFS7,RFS8,RFS9,RFS10)
-write.csv(RFS,"C:/Users/yinlinfu/Desktop/EM implementation/RFS in the first experiment for diff data sizes.csv")
+#write.csv(RFS,"C:/Users/yinlinfu/Desktop/EM implementation/RFS in the first experiment for diff data sizes.csv")
+
 ##data size plot
 ACC=c(mean1,mean2,mean3,mean4,mean5,mean6,mean7,mean8,mean9,mean10)
 SD=c(sd1,sd2,sd3,sd4,sd5,sd6,sd7,sd8,sd9,sd10)
@@ -108,9 +120,8 @@ minimum=c(min(acc1),min(acc2),min(acc3),min(acc4),min(acc5),min(acc6),min(acc7),
 maximum=c(max(acc1),max(acc2),max(acc3),max(acc4),max(acc5),max(acc6),max(acc7),max(acc8),max(acc9),max(acc10))
 size=seq(from=100,to=1000,by=100)
 sizeplot=data.frame(size,ACC,SD,minimum,maximum)
-write.csv(sizeplot,"c:/Users/yinlinfu/Desktop/EM implementation/sizeplotdata.csv")
-
-sizeplot=read.csv("/Users/yinlinfu/Desktop/EM implementation/sizeplotdata.csv")
+#write.csv(sizeplot,"c:/Users/yinlinfu/Desktop/EM implementation/sizeplotdata.csv")
+#sizeplot=read.csv("/Users/yinlinfu/Desktop/EM implementation/sizeplotdata.csv")
 
 figure1=ggplot(sizeplot,aes(x=size,y=ACC))+geom_point()+scale_x_discrete(name="Data Size", breaks=seq(from=0,to=1000,by=100))+
   geom_errorbar(aes(ymin=ACC-SD,ymax=maximum),width=15)+
@@ -134,7 +145,7 @@ figure1
 dev.off()
 
 ##for n=300 the accuracy with full feature set
-  xx=sim3[,-1]; label.true=sim3[,1]
+  xx=sim3[[1]]; label.true=sim3[[2]]
   obj=init.EM(xx,nclass=2)
   model1=emcluster(xx,obj)
   summary(model1)
@@ -147,13 +158,15 @@ dev.off()
   
 ##RI plot
 sim3=simulation1(n=300)
-R300=ESM(sim3[[1]],clusternum=2,maxiter=200,truelabel=sim3[[2]],featurenum=2,threshold1=1e-5,threshold2=0.04)
-save(R300,file="/Users/yinlinfu/Desktop/figures/R300.RData")
-load("/Users/yinlinfu/Desktop/figures/R300.RData")
+obj = Mclust(sim3[[1]],G=2)
+R300=ESM(sim3[[1]],obj,clusternum=2,maxiter=100,truelabel=sim3[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
 
-iter=42
-iterations=1:42
-delta=R300[[1]][2:43,]
+#save(R300,file="/Users/yinlinfu/Desktop/figures/R300.RData")
+#load("/Users/yinlinfu/Desktop/figures/R300.RData")
+
+iter=12
+iterations=1:12
+delta=R300[[2]][2:13,]
 delta_v=matrix(delta,ncol=1)
 iter_v=rep(iterations, 10)
 variable=c(rep("f1",iter),rep("f2",iter),rep("f3",iter),rep("f4",iter),rep("f5",iter),rep("f6",iter),
@@ -163,15 +176,16 @@ Delta=data.frame(iter_v, delta_v, feature)
 colnames(Delta)=c("iterations","RI","feature")
 
 figure2=ggplot(Delta,aes(x=iterations, y=RI,color=feature))+geom_line()+
-  scale_x_discrete(name="", breaks=seq(from=0,to=iter,by=5))+
+  scale_x_discrete(name="", breaks=seq(from=0,to=iter,by=1))+
   theme(axis.text.x=element_text(colour="black"),axis.text.y=element_text(colour="black"))+
   scale_color_discrete(breaks=levels(feature),labels=c(expression(f[1]),expression(f[2]),expression(f[3]),expression(f[4]),expression(f[5]),
                                                        expression(f[6]),expression(f[7]),expression(f[8]),expression(f[9]),expression(f[10])))+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-  annotate("text",x=40,y=0.19,label="f[1]",parse=TRUE,size=4)+
-  annotate("text",x=40,y=0.07,label="f[2]",parse=TRUE,size=4)+
-  annotate("text",x=39,y=0.02,label="f[3]-f[10]",parse=TRUE,size=4)
+  annotate("text",x=10,y=0.19,label="f[1]",parse=TRUE,size=4)+
+  annotate("text",x=10,y=0.07,label="f[2]",parse=TRUE,size=4)+
+  annotate("text",x=9,y=0.02,label="f[3]-f[10]",parse=TRUE,size=4)
+figure2
 
 tiff('/Users/yinlinfu/Desktop/figures/figure2.tiff', units="in", width=6, height=4, res=300)
 figure2
@@ -220,14 +234,16 @@ simulation2=function(n){
 }
 
 sim=simulation2(n=300)
-R=ESM(sim[[1]],clusternum=2,maxiter=200,truelabel=sim[[2]],featurenum=2,threshold1=1e-5,threshold2=0.04)
-save(R,file="/Users/yinlinfu/Desktop/figures/R.RData")
-load("/Users/yinlinfu/Desktop/figures/R.RData")
+obj = Mclust(sim[[1]], G=2)
+R=ESM(sim[[1]],obj,clusternum=2,maxiter=100,truelabel=sim[[2]],featurenum=3,threshold1=0.001,threshold2=0.05)
+
+#save(R,file="/Users/yinlinfu/Desktop/figures/R.RData")
+#load("/Users/yinlinfu/Desktop/figures/R.RData")
 
 ##delta plot
-iter=44
-iterations=1:44
-delta=R[[1]][2:45,]
+iter=17
+iterations=1:17
+delta=R[[2]][2:18,]
 delta_v=matrix(delta,ncol=1)
 iter_v=rep(iterations, 15)
 variable=c(rep("f1",iter),rep("f2",iter),rep("f3",iter),rep("f4",iter),rep("f5",iter),rep("f6",iter),
@@ -236,17 +252,17 @@ feature=factor(variable, levels=c("f1","f2","f3","f4","f5","f6","f7","f8","f9","
 Delta=data.frame(iter_v, delta_v, feature)
 colnames(Delta)=c("iterations","RI","feature")
 figure3=ggplot(Delta,aes(x=iterations, y=RI,color=feature))+geom_line()+
-  scale_x_discrete(name="", breaks=seq(from=0,to=45,by=5))+
+  scale_x_discrete(name="", breaks=seq(from=0,to=17,by=1))+
   theme(axis.text.x=element_text(colour="black"),axis.text.y=element_text(colour="black"))+
   scale_color_discrete(breaks=levels(feature),labels=c(expression(f[1]),expression(f[2]),expression(f[3]),expression(f[4]),expression(f[5]),
                                                        expression(f[6]),expression(f[7]),expression(f[8]),expression(f[9]),expression(f[10]),
                                                        expression(f[11]),expression(f[12]),expression(f[13]),expression(f[14]),expression(f[15])))+
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-  annotate("text",x=43,y=0.097,label="f[1]",parse=TRUE,size=4)+
-  annotate("text",x=43,y=0.078,label="f[2]",parse=TRUE,size=4)+
-  annotate("text",x=41,y=0.008,label="f[3]-f[15]",parse=TRUE,size=4)
-
+  annotate("text",x=17,y=0.097,label="f[1]",parse=TRUE,size=4)+
+  annotate("text",x=17,y=0.078,label="f[2]",parse=TRUE,size=4)+
+  annotate("text",x=16,y=0.008,label="f[3]-f[15]",parse=TRUE,size=4)
+figure3
 tiff('/Users/yinlinfu/Desktop/figures/figure3.tiff', units="in", width=6, height=4.2, res=300)
 figure3
 dev.off()
