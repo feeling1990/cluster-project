@@ -268,7 +268,9 @@ ECSM = function(data_info, maxiter, max_feature_num, threshold1, threshold2, opt
     gammaKn = Estep(c,b,m,s,cat,xx_new,K, v[[1]], v[[2]], v[[3]],v[[4]],v[[5]],v[[6]],v[[7]]);
     v <- Mstep(c,b,m,s,cat,xx_new, gammaKn);
   }
-  for (i in 2:maxiter) {
+  pb <- progress_bar$new(total = 100)
+  for (i in 2:maxiter){
+    pb$tick()
     # Repeat E and M steps till convergence
     gammaKn = Estep(c,b,m,s,cat,xx_new,K, v[[1]], v[[2]], v[[3]],v[[4]],v[[5]],v[[6]],v[[7]]); 
     v <- Mstep(c,b,m,s,cat,xx_new, gammaKn);
