@@ -210,17 +210,26 @@ loglike <- function(c,b,m,s,cat,K,xx,pi,mu,sigma,pb,pm,q,lambda) {
     log( sum(sapply(1:K, function(j) {pi[j]*gk(c,b,m,s,cat,xn,j,mu,sigma,pi,pb,pm,q,lambda)})),base=exp(1)); }))
 }
 
-Data_Process = function(data, numcluster){
+Data_Process = function(data, numcluster, categorical_level_thresh = 5){
   index_binary = which(sapply(data, function(x) {length(unique(x)) == 2}))
-  index_continuous = which(sapply(data, function(x) {length(unique(x)) > 10}))
-  index_multi = which(sapply(data, function(x) {length(unique(x)) <= 10 &length(unique(x)) >2 }))
+  index_continuous = which(sapply(data, function(x) {length(unique(x)) > categorical_level_thresh}))
+  index_multi = which(sapply(data, function(x) {length(unique(x)) <= categorical_level_thresh &length(unique(x)) >2 }))
   x_multi = as.data.frame(sapply(data[, index_multi], function(x){as.factor(as.character(x))}))
-  x_cate=model.matrix(~ . + 0, data=x_multi, contrasts.arg = lapply(x_multi, contrasts, contrasts=FALSE))
-  ## initialization
-  obj1 = init.EM(data[, -index_multi], nclass=numcluster)
-  obj2 = Mclust(data[, -index_multi],G=2)
-  data_new = data.frame(data[,index_continuous], data[, index_binary], x_cate)
-  cat_value = sapply(data[, index_multi], function(x){length(unique(x))})
+  if (length(x_multi)>0){
+    x_cate=model.matrix(~ . + 0, data=x_multi, contrasts.arg = lapply(x_multi, contrasts, contrasts=FALSE))
+    data_new = data.frame(data[,index_continuous], data[, index_binary], x_cate)
+    cat_value = sapply(data[, index_multi], function(x){length(unique(x))})
+    ## initialization
+    obj1 = init.EM(data[, -index_multi], nclass=numcluster)
+    obj2 = Mclust(data[, -index_multi],G=2)
+  } else{
+    cat_value = NULL
+    data_new = data.frame(data[,index_continuous], data[, index_binary])
+    ## initialization
+    obj1 = init.EM(data, nclass=numcluster)
+    obj2 = Mclust(data,G=2)
+  }
+
   results = list()
   results$continous = length(index_continuous)
   results$binary = length(index_binary)
@@ -268,6 +277,7 @@ ECSM = function(data_info, maxiter, max_feature_num, threshold1, threshold2, opt
     gammaKn = Estep(c,b,m,s,cat,xx_new,K, v[[1]], v[[2]], v[[3]],v[[4]],v[[5]],v[[6]],v[[7]]);
     v <- Mstep(c,b,m,s,cat,xx_new, gammaKn);
   }
+  
   pb <- progress_bar$new(total = 100)
   for (i in 2:maxiter){
     pb$tick()
@@ -370,10 +380,10 @@ simulation1_1=function(n){
   return(results)
 }
 ## prepare simulation
-sim1=simulation1_1(n=600)
+sim1=simulation1_1(n=90)
 X=sim1[[1]]; truelabel=sim1[[2]]
 
-data_info = Data_Process(data=X, numcluster = 2)
+data_info = Data_Process(data=X, numcluster = 2, categorical_level_thresh=10)
 result = ECSM(data=data_info, maxiter=300, max_feature_num=5, threshold1=4e-5, threshold2=0.01, option=2)
 EvaluateModel(result, truelabel)
 
@@ -386,9 +396,15 @@ names(heart) <- c( "age", "sex", "cp", "trestbps", "chol","fbs", "restecg",
 heart1 = heart[complete.cases(heart),]
 truelabel = heart1[, 14]
 data = heart1[, -14]
-data_info = Data_Process(data=data, numcluster = 2)
-heart_result = ECSM(data=data_info, maxiter=300, max_feature_num=5, threshold1=4e-5, threshold2=0.04, option=1)
+data_info = Data_Process(data=data, numcluster = 2, categorical_level_thresh=10)
+heart_result = ECSM(data=data_info, maxiter=100, max_feature_num=5, threshold1=4e-5, threshold2=0.04, option=1)
 EvaluateModel(heart_result, truelabel)
 
-
+# Example 3
+ISU = read.table("/Users/yinlinfu/Downloads/ISU.dat")
+ISU1 = ISU[complete.cases(ISU),]
+data_info = Data_Process(data=ISU1, numcluster = 2, categorical_level_thresh=5)
+result = ECSM(data=data_info, maxiter=30, max_feature_num=3, threshold1=4e-5, threshold2=0.01, option=2)
+cluster_label = result$mylabel
+cluster_label
 
